@@ -2,6 +2,7 @@
 import csv
 
 def openShimmerFile(url, column_name):
+
   '''finding to open the files
     Funcion that extracts gsr data from the files
     
@@ -20,31 +21,41 @@ def openShimmerFile(url, column_name):
 
   req_data = []
   index = -1
-
-  # Read File
   with open(url) as f:
-    if ('csv' in url):
+    if 'csv' in url:
       reader = csv.reader(f, delimiter=',')
     else:
       reader = csv.reader(f, delimiter='\t')
-    # Store data in lists
-    sep = reader.__next__()
-    sep = reader.__next__()
-    sep = reader.__next__()		
-    forth_row = reader.__next__()
+
+    #sep = next(reader, None)
+    #sep = next(reader, None)
+    sep = next(reader, None)		
+    forth_row = next(reader, None)
     shimmer_header = []
     data_header = []
     calib_header = []
-    for i,column in enumerate(forth_row):
-      if (column == column_name):
-        index = i
-    reader.__next__()
+    forth_row = forth_row[0].split('\t')
 
-    if (index < 0):
+    for i, column in enumerate(forth_row):
+      if column == column_name:
+        index = i
+        print(index)
+    
+    if index < 0:
       print("Column not found!")
-        
+      #return req_data
+      
+    next(reader, None)  # Skip the next row
+
     for row in reader:
-      if (index <= len(row)):
-        req_data.append(float(row[index]))
+      row = row[0].split('\t')
+      if len(row) > index:
+        try:
+          req_data.append(float(row[index]))
+          #print(row[index])
+        except ValueError:
+          print(f"Error converting value to float: {row[index]}")
+      
+# #return req_data
 
   return req_data
